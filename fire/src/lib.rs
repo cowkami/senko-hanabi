@@ -193,7 +193,7 @@ fn send_mvp_matrix(
     let view_matrix = glm::look_at(&eye, &center, &up);
 
     let aspect = canvas.width() as f32 / canvas.height() as f32;
-    let fovy = 95.0 * consts::PI / 180.0;
+    let fovy = 45.0 * consts::PI / 180.0;
     let near = 0.1;
     let far = 10.0;
     let projection_matrix = glm::perspective(aspect, fovy, near, far);
