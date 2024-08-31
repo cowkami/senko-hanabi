@@ -1,4 +1,4 @@
-import start from '../basic/pkg/basic'
+import start from '../fire/pkg/fire'
 
 (async () => {
     await start()
