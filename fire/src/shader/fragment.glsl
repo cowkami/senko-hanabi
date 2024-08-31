@@ -1,3 +1,10 @@
+#version 300 es
+
+precision highp float;
+
+in vec4 vertexColor;
+out vec4 fragmentColor;
+
 void main() {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    fragmentColor = vertexColor;
 }

@@ -1,7 +1,14 @@
-attribute vec4 aVertexPosition;
-uniform mat4 uModelViewMatrix;
-uniform mat4 uProjectionMatrix;
+#version 300 es
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 color;
+
+uniform mat4 mvpMatrix;
+
+out vec4 vertexColor;
 
 void main() {
-    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    vertexColor = color;
+    gl_Position = mvpMatrix * vec4(position, 1.0);
+    gl_PointSize = 10.0;
 }
