@@ -1,5 +1,5 @@
-import init from '../wasm/pkg/webgl'
+import start from '../basic/pkg/basic'
 
 (async () => {
-    await init()
+    await start()
 })()
