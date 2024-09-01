@@ -35,7 +35,7 @@ pub fn start() -> Result<(), JsValue> {
         i += 1;
 
         // Schedule ourself for another requestAnimationFrame callback.
-        app.render();
+        let _ = app.render();
         request_animation_frame(f.borrow().as_ref().unwrap());
     }) as Box<dyn FnMut()>));
 

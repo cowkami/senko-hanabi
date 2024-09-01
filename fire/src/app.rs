@@ -9,7 +9,7 @@ use super::shader::*;
 
 pub struct App {
     pub gl: GL,
-    pub window: Window,
+    window: Window,
     width: u32,
     height: u32,
     pub shader_program: WebGlProgram,
@@ -93,7 +93,7 @@ impl App {
         let vertex_count = vertices.len() as i32 / 3;
         let indices: &Vec<u16> = &(0..vertex_count).into_iter().map(|i| i as u16).collect();
 
-        let vao = create_vao(&self.gl, vbo_data, locations, &indices, vertex_count)?;
+        let vao = self.create_vao(vbo_data, locations, &indices, vertex_count)?;
         self.gl.bind_vertex_array(Some(&vao));
 
         let mvp_location = self
@@ -141,6 +141,52 @@ impl App {
             );
     }
 
+    fn create_vao(
+        &self,
+        vbo_data: &[&[f32]],
+        locations: &[u32],
+        ibo_data: &[u16],
+        vertex_count: i32,
+    ) -> Result<WebGlVertexArrayObject, String> {
+        let vao = self
+            .gl
+            .create_vertex_array()
+            .ok_or("Failed to create vertex array object")?;
+        self.gl.bind_vertex_array(Some(&vao));
+
+        for i in 0..vbo_data.len() {
+            let vbo = self.gl.create_buffer().ok_or("Failed to create buffer")?;
+            self.gl.bind_buffer(GL::ARRAY_BUFFER, Some(&vbo));
+            unsafe {
+                let view = js_sys::Float32Array::view(&vbo_data[i]);
+                self.gl.buffer_data_with_array_buffer_view(
+                    GL::ARRAY_BUFFER,
+                    &view,
+                    GL::STATIC_DRAW,
+                );
+            }
+            self.gl.enable_vertex_attrib_array(locations[i]);
+            let size = vbo_data[i].len() as i32 / vertex_count;
+            self.gl
+                .vertex_attrib_pointer_with_i32(locations[i], size, GL::FLOAT, false, 0, 0);
+        }
+
+        let ibo = self.gl.create_buffer().ok_or("Failed to create buffer")?;
+        self.gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&ibo));
+        unsafe {
+            let view = js_sys::Uint16Array::view(ibo_data);
+            self.gl.buffer_data_with_array_buffer_view(
+                GL::ELEMENT_ARRAY_BUFFER,
+                &view,
+                GL::STATIC_DRAW,
+            );
+        }
+
+        self.gl.bind_vertex_array(None);
+
+        Ok(vao)
+    }
+
     fn draw(&self, index_count: i32) {
         self.gl.clear_color(0.0, 0.0, 0.0, 1.0);
         self.gl.clear_depth(1.0);
@@ -150,49 +196,4 @@ impl App {
             .draw_elements_with_i32(GL::POINTS, index_count, GL::UNSIGNED_SHORT, 0);
         self.gl.flush();
     }
-}
-
-fn get_indices() -> Vec<u16> {
-    let vertex_indices = [0, 1, 2, 0, 2, 3];
-    [vertex_indices; 6]
-        .iter()
-        .enumerate()
-        .flat_map(|(i, v)| v.iter().map(move |u| u + 4 * i as u16))
-        .collect::<Vec<_>>()
-}
-
-fn create_vao(
-    gl: &GL,
-    vbo_data: &[&[f32]],
-    locations: &[u32],
-    ibo_data: &[u16],
-    vertex_count: i32,
-) -> Result<WebGlVertexArrayObject, String> {
-    let vao = gl
-        .create_vertex_array()
-        .ok_or("Failed to create vertex array object")?;
-    gl.bind_vertex_array(Some(&vao));
-
-    for i in 0..vbo_data.len() {
-        let vbo = gl.create_buffer().ok_or("Failed to create buffer")?;
-        gl.bind_buffer(GL::ARRAY_BUFFER, Some(&vbo));
-        unsafe {
-            let view = js_sys::Float32Array::view(&vbo_data[i]);
-            gl.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &view, GL::STATIC_DRAW);
-        }
-        gl.enable_vertex_attrib_array(locations[i]);
-        let size = vbo_data[i].len() as i32 / vertex_count;
-        gl.vertex_attrib_pointer_with_i32(locations[i], size, GL::FLOAT, false, 0, 0);
-    }
-
-    let ibo = gl.create_buffer().ok_or("Failed to create buffer")?;
-    gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&ibo));
-    unsafe {
-        let view = js_sys::Uint16Array::view(ibo_data);
-        gl.buffer_data_with_array_buffer_view(GL::ELEMENT_ARRAY_BUFFER, &view, GL::STATIC_DRAW);
-    }
-
-    gl.bind_vertex_array(None);
-
-    Ok(vao)
 }

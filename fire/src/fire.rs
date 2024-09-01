@@ -23,8 +23,8 @@ impl Fire {
     }
 
     fn particles_to_vertices(&self) -> (Vec<f32>, Vec<f32>) {
-        let mut vertices = get_vertices();
-        let mut colors = get_colors();
+        let mut vertices = vec![];
+        let mut colors = vec![];
 
         for particle in &self.particles {
             vertices.extend(particle.position.clone());
@@ -33,12 +33,4 @@ impl Fire {
 
         (vertices, colors)
     }
-}
-
-fn get_vertices() -> Vec<f32> {
-    vec![-0.5, -0.5, 0.5]
-}
-
-fn get_colors() -> Vec<f32> {
-    vec![1.0, 0.0, 0.0, 1.0]
 }
