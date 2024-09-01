@@ -6,9 +6,9 @@ extern crate nalgebra_glm as glm;
 
 use app::App;
 use fire::Fire;
-use std::{cell::RefCell, f32::consts, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::{prelude::*, JsCast};
-use web_sys::{WebGl2RenderingContext as GL, *};
+use web_sys::*;
 
 const WIDTH: u32 = 768;
 const HEIGHT: u32 = 768;
@@ -16,7 +16,7 @@ const HEIGHT: u32 = 768;
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
     let fire = Fire::new();
-    let app = App::new(WIDTH, HEIGHT, fire)?;
+    let mut app = App::new(WIDTH, HEIGHT, fire)?;
 
     let f = Rc::new(RefCell::new(None));
     let g = f.clone();

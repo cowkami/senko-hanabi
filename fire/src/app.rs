@@ -9,7 +9,6 @@ use super::shader::*;
 
 pub struct App {
     pub gl: GL,
-    window: Window,
     width: u32,
     height: u32,
     pub shader_program: WebGlProgram,
@@ -26,7 +25,6 @@ impl App {
 
         Ok(Self {
             gl,
-            window,
             width,
             height,
             shader_program,
@@ -84,7 +82,7 @@ impl App {
         Ok(program)
     }
 
-    pub fn render(&self) -> Result<(), JsValue> {
+    pub fn render(&mut self) -> Result<(), JsValue> {
         self.gl.use_program(Some(&self.shader_program));
         let (vertices, colors) = self.model.update();
 

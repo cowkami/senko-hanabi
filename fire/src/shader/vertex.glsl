@@ -10,5 +10,5 @@ out vec4 vertexColor;
 void main() {
     vertexColor = color;
     gl_Position = mvpMatrix * vec4(position, 1.0);
-    gl_PointSize = 10.0;
+    gl_PointSize = 5.0;
 }
