@@ -84,18 +84,13 @@ impl App {
 
     pub fn render(&mut self) -> Result<(), JsValue> {
         self.gl.use_program(Some(&self.shader_program));
-        let (vertices, colors) = self.model.update();
+        let (vertices, colors, links) = self.model.update();
 
         let vbo_data: &[&[f32]] = &[&vertices, &colors];
         let locations = &[0, 1];
         let vertex_count = vertices.len() as i32 / 3;
-        let indices: &Vec<u16> =
-            &std::iter::zip(0..(vertex_count / 2), (vertex_count / 2)..vertex_count)
-                .into_iter()
-                .flat_map(|s| vec![s.0 as u16, s.1 as u16])
-                .collect();
 
-        let vao = self.create_vao(vbo_data, locations, &indices, vertex_count)?;
+        let vao = self.create_vao(vbo_data, locations, &links, vertex_count)?;
         self.gl.bind_vertex_array(Some(&vao));
 
         let mvp_location = self
@@ -111,8 +106,8 @@ impl App {
         self.send_mvp_matrix(&mvp_location);
 
         // 描画
-        let index_count = indices.len() as i32;
-        self.draw(index_count);
+        let link_count = links.len() as i32;
+        self.draw(link_count);
 
         Ok(())
     }

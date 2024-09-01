@@ -66,7 +66,7 @@ impl Fire {
         Self { particles }
     }
 
-    pub fn update(&mut self) -> (Vec<f32>, Vec<f32>) {
+    pub fn update(&mut self) -> (Vec<f32>, Vec<f32>, Vec<u16>) {
         let previous = self.particles.clone();
 
         let l = self.particles.len();
@@ -79,7 +79,14 @@ impl Fire {
         let vertices = [prev_vertices, current_vertices].concat();
         let colors = [prev_colors, current_colors].concat();
 
-        (vertices, colors)
+        let vertex_count = vertices.len() / 3;
+        let links: Vec<u16> =
+            std::iter::zip(0..(vertex_count / 2), (vertex_count / 2)..vertex_count)
+                .into_iter()
+                .flat_map(|s| vec![s.0 as u16, s.1 as u16])
+                .collect::<Vec<u16>>();
+
+        (vertices, colors, links)
     }
 
     fn particles_to_vertices(particles: &Vec<Particle>) -> (Vec<f32>, Vec<f32>) {
