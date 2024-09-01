@@ -120,9 +120,9 @@ impl App {
         let view_matrix = glm::look_at(&eye, &center, &up);
 
         let aspect = self.width as f32 / self.height as f32;
-        let fovy = 45.0 * consts::PI / 180.0;
+        let fovy = 90.0 * consts::PI / 180.0;
         let near = 0.1;
-        let far = 10.0;
+        let far = 100.0;
         let projection_matrix = glm::perspective(aspect, fovy, near, far);
 
         let mvp_matrix = projection_matrix * view_matrix;

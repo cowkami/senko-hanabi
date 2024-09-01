@@ -23,7 +23,7 @@ pub fn start() -> Result<(), JsValue> {
 
     let mut i = 0;
     *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
-        if i > 300 {
+        if i > 1000 {
             // Drop our handle to this closure so that it will get cleaned
             // up once we return.
             let _ = f.borrow_mut().take();

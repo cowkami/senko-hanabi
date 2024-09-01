@@ -30,3 +30,7 @@ features = [
     "WebGlVertexArrayObject",
     "WebGlUniformLocation",
 ]
+
+[dependencies.rand]
+version = "0.7"
+features = ["wasm-bindgen"]
