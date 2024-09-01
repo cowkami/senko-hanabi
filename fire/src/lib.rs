@@ -1,28 +1,19 @@
+mod app;
+mod shader;
+
 extern crate nalgebra_glm as glm;
 
+use app::App;
 use std::{cell::RefCell, f32::consts, rc::Rc};
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{WebGl2RenderingContext as GL, *};
 
+const WIDTH: u32 = 768;
+const HEIGHT: u32 = 768;
+
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
-    console_error_panic_hook::set_once();
-
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document
-        .get_element_by_id("canvas")
-        .ok_or("canvas not found")?
-        .dyn_into::<HtmlCanvasElement>()?;
-    canvas.set_width(768);
-    canvas.set_height(768);
-
-    let gl = canvas
-        .get_context("webgl2")?
-        .ok_or("Failed to get WebGl2RenderingContext")?
-        .dyn_into::<GL>()?;
-
-    let program = create_program(&gl)?;
-    gl.use_program(Some(&program));
+    let app = App::new(WIDTH, HEIGHT)?;
 
     let vertices = get_vertices();
     let colors = get_colors();
@@ -32,23 +23,24 @@ pub fn start() -> Result<(), JsValue> {
     let locations = &[0, 1];
     let vertex_count = vertices.len() as i32 / 3;
 
-    let vao = create_vao(&gl, vbo_data, locations, &indices, vertex_count)?;
-    gl.bind_vertex_array(Some(&vao));
+    let vao = create_vao(&app.gl, vbo_data, locations, &indices, vertex_count)?;
+    app.gl.bind_vertex_array(Some(&vao));
 
-    let mvp_location = gl
-        .get_uniform_location(&program, "mvpMatrix")
+    let mvp_location = app
+        .gl
+        .get_uniform_location(&app.shader_program, "mvpMatrix")
         .ok_or("Failed to get uniform location")?;
 
-    gl.enable(GL::DEPTH_TEST);
-    gl.depth_func(GL::LEQUAL);
-    gl.enable(GL::CULL_FACE);
+    app.gl.enable(GL::DEPTH_TEST);
+    app.gl.depth_func(GL::LEQUAL);
+    app.gl.enable(GL::CULL_FACE);
 
     // 視点を定義
-    send_mvp_matrix(&gl, &mvp_location, &canvas, 0);
+    send_mvp_matrix(&app.gl, &mvp_location, 0);
 
     // 描画
     let index_count = indices.len() as i32;
-    draw(&gl, index_count);
+    draw(&app.gl, index_count);
 
     // let mut frame_count = 0;
 
@@ -64,58 +56,6 @@ pub fn start() -> Result<(), JsValue> {
     // request_animation_frame(clone.borrow().as_ref().unwrap())?;
 
     Ok(())
-}
-
-fn create_program(gl: &GL) -> Result<WebGlProgram, String> {
-    let vertex_shader = create_shader(&gl, GL::VERTEX_SHADER, include_str!("shader/vertex.glsl"))?;
-    let fragment_shader = create_shader(
-        &gl,
-        GL::FRAGMENT_SHADER,
-        include_str!("shader/fragment.glsl"),
-    )?;
-
-    let program = gl
-        .create_program()
-        .ok_or("Failed to create program object")?;
-    gl.attach_shader(&program, &vertex_shader);
-    gl.attach_shader(&program, &fragment_shader);
-    gl.link_program(&program);
-
-    if gl
-        .get_program_parameter(&program, GL::LINK_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(program)
-    } else {
-        let log = gl
-            .get_program_info_log(&program)
-            .unwrap_or(String::from("Failed to link program"));
-        gl.delete_program(Some(&program));
-        Err(log)
-    }
-}
-
-fn create_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader, String> {
-    let shader = gl
-        .create_shader(shader_type)
-        .ok_or("Failed to create shader object")?;
-    gl.shader_source(&shader, source);
-    gl.compile_shader(&shader);
-
-    if gl
-        .get_shader_parameter(&shader, GL::COMPILE_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(shader)
-    } else {
-        let log = gl
-            .get_shader_info_log(&shader)
-            .unwrap_or(String::from("Failed to compile shader"));
-        gl.delete_shader(Some(&shader));
-        Err(log)
-    }
 }
 
 fn get_vertices() -> Vec<f32> {
@@ -182,18 +122,13 @@ fn create_vao(
     Ok(vao)
 }
 
-fn send_mvp_matrix(
-    gl: &GL,
-    location: &WebGlUniformLocation,
-    canvas: &HtmlCanvasElement,
-    frame_count: i32,
-) {
+fn send_mvp_matrix(gl: &GL, location: &WebGlUniformLocation, frame_count: i32) {
     let eye = glm::Vec3::new(0.0, 0.0, 3.0);
     let center = glm::Vec3::new(0.0, 0.0, 0.0);
     let up = glm::Vec3::new(0.0, 1.0, 0.0);
     let view_matrix = glm::look_at(&eye, &center, &up);
 
-    let aspect = canvas.width() as f32 / canvas.height() as f32;
+    let aspect = WIDTH as f32 / HEIGHT as f32;
     let fovy = 45.0 * consts::PI / 180.0;
     let near = 0.1;
     let far = 10.0;
