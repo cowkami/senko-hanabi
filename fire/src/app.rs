@@ -4,18 +4,20 @@ use std::f32::consts;
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{WebGl2RenderingContext as GL, *};
 
+use super::fire::Fire;
 use super::shader::*;
 
 pub struct App {
     pub gl: GL,
-    window: Window,
+    pub window: Window,
     width: u32,
     height: u32,
     pub shader_program: WebGlProgram,
+    pub model: Fire,
 }
 
 impl App {
-    pub fn new(height: u32, width: u32) -> Result<Self, JsValue> {
+    pub fn new(height: u32, width: u32, model: Fire) -> Result<Self, JsValue> {
         let window = Self::init_window()?;
         let document = Self::init_document(&window)?;
         let canvas = Self::init_canvas(width, height, &document)?;
@@ -28,6 +30,7 @@ impl App {
             width,
             height,
             shader_program,
+            model: model,
         })
     }
 
@@ -81,13 +84,14 @@ impl App {
         Ok(program)
     }
 
-    pub fn render(&self, vertices: &Vec<f32>, colors: &Vec<f32>) -> Result<(), JsValue> {
+    pub fn render(&self) -> Result<(), JsValue> {
         self.gl.use_program(Some(&self.shader_program));
+        let (vertices, colors) = self.model.update();
 
-        let vbo_data: &[&[f32]] = &[vertices, colors];
+        let vbo_data: &[&[f32]] = &[&vertices, &colors];
         let locations = &[0, 1];
         let vertex_count = vertices.len() as i32 / 3;
-        let indices = get_indices();
+        let indices: &Vec<u16> = &(0..vertex_count).into_iter().map(|i| i as u16).collect();
 
         let vao = create_vao(&self.gl, vbo_data, locations, &indices, vertex_count)?;
         self.gl.bind_vertex_array(Some(&vao));
