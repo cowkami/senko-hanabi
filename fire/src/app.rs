@@ -89,7 +89,11 @@ impl App {
         let vbo_data: &[&[f32]] = &[&vertices, &colors];
         let locations = &[0, 1];
         let vertex_count = vertices.len() as i32 / 3;
-        let indices: &Vec<u16> = &(0..vertex_count).into_iter().map(|i| i as u16).collect();
+        let indices: &Vec<u16> =
+            &std::iter::zip(0..(vertex_count / 2), (vertex_count / 2)..vertex_count)
+                .into_iter()
+                .flat_map(|s| vec![s.0 as u16, s.1 as u16])
+                .collect();
 
         let vao = self.create_vao(vbo_data, locations, &indices, vertex_count)?;
         self.gl.bind_vertex_array(Some(&vao));
@@ -191,7 +195,7 @@ impl App {
         self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
 
         self.gl
-            .draw_elements_with_i32(GL::POINTS, index_count, GL::UNSIGNED_SHORT, 0);
+            .draw_elements_with_i32(GL::LINES, index_count, GL::UNSIGNED_SHORT, 0);
         self.gl.flush();
     }
 }

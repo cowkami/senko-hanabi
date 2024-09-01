@@ -3,7 +3,7 @@ use std::f32::consts;
 
 const GRAVITY: f32 = 9.81;
 const TIME_DELTA: f32 = 0.03;
-const RESISTANCE: f32 = 1.0;
+const RESISTANCE: f32 = 0.8;
 
 #[derive(Clone)]
 struct Particle {
@@ -15,12 +15,12 @@ struct Particle {
 impl Particle {
     pub fn new(rng: &mut ThreadRng) -> Self {
         Self {
-            position: [0.0, 0.0, 0.0],
+            position: [0.0, 0.7, 0.0],
             color: [1.0, 0.7, 0.2, 1.0],
             velocity: Self::init_velocity(
                 rng.gen_range(0.0, 2.0 * consts::PI),
                 rng.gen_range(0.0, 2.0 * consts::PI),
-                rng.gen_range(0.0, 10.0),
+                rng.gen_range(10.0, 20.0),
             ),
         }
     }
@@ -33,7 +33,7 @@ impl Particle {
         ]
     }
 
-    fn step(&mut self) {
+    fn update(&mut self) {
         self.update_velocity();
         self.update_position();
     }
@@ -59,31 +59,34 @@ pub struct Fire {
 impl Fire {
     pub fn new() -> Self {
         let mut rng = rand::thread_rng();
-        let particles = (0..100000)
+        let particles = (0..1000)
             .map(|_| Particle::new(&mut rng))
             .collect::<Vec<Particle>>();
 
         Self { particles }
     }
 
-    pub fn step(&mut self) {
+    pub fn update(&mut self) -> (Vec<f32>, Vec<f32>) {
+        let previous = self.particles.clone();
+
         let l = self.particles.len();
         for i in 0..l {
-            self.particles[i].step();
+            self.particles[i].update();
         }
-    }
+        let (prev_vertices, prev_colors) = Self::particles_to_vertices(&previous);
+        let (current_vertices, current_colors) = Self::particles_to_vertices(&self.particles);
 
-    pub fn update(&mut self) -> (Vec<f32>, Vec<f32>) {
-        self.step();
-        let (vertices, colors) = self.particles_to_vertices();
+        let vertices = [prev_vertices, current_vertices].concat();
+        let colors = [prev_colors, current_colors].concat();
+
         (vertices, colors)
     }
 
-    fn particles_to_vertices(&mut self) -> (Vec<f32>, Vec<f32>) {
+    fn particles_to_vertices(particles: &Vec<Particle>) -> (Vec<f32>, Vec<f32>) {
         let mut vertices = vec![];
         let mut colors = vec![];
 
-        for particle in &self.particles {
+        for particle in particles {
             vertices.extend(particle.position.clone());
             colors.extend(particle.color.clone());
         }
