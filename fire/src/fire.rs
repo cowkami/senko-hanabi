@@ -1,8 +1,9 @@
 use rand::prelude::*;
+use std::f32::consts;
 
 const GRAVITY: f32 = 9.81;
-const TIME_DELTA: f32 = 0.01;
-const RESISTANCE: f32 = 4.0;
+const TIME_DELTA: f32 = 0.03;
+const RESISTANCE: f32 = 1.0;
 
 #[derive(Clone)]
 struct Particle {
@@ -15,21 +16,20 @@ impl Particle {
     pub fn new(rng: &mut ThreadRng) -> Self {
         Self {
             position: [0.0, 0.0, 0.0],
-            color: [
-                rng.gen_range(0.0, 1.0),
-                rng.gen_range(0.0, 1.0),
-                rng.gen_range(0.0, 1.0),
-                1.0,
-            ],
-            velocity: Self::init_velocity(rng),
+            color: [1.0, 0.7, 0.2, 1.0],
+            velocity: Self::init_velocity(
+                rng.gen_range(0.0, 2.0 * consts::PI),
+                rng.gen_range(0.0, 2.0 * consts::PI),
+                rng.gen_range(0.0, 10.0),
+            ),
         }
     }
 
-    fn init_velocity(rng: &mut ThreadRng) -> [f32; 3] {
+    fn init_velocity(velocity: f32, latitude: f32, longitude: f32) -> [f32; 3] {
         [
-            rng.gen_range(-8.0, 8.0),
-            rng.gen_range(-8.0, 8.0),
-            rng.gen_range(-8.0, 8.0),
+            latitude.cos() * longitude.sin() * velocity,
+            latitude.cos() * longitude.cos() * velocity,
+            latitude.sin() * velocity,
         ]
     }
 
