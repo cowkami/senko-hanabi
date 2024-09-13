@@ -1,9 +1,11 @@
 use rand::prelude::*;
 use std::f32::consts;
+use std::iter::zip;
 
 const GRAVITY: f32 = 9.81;
-const TIME_DELTA: f32 = 0.03;
-const RESISTANCE: f32 = 0.8;
+const TIME_DELTA: f32 = 0.010;
+const AIR_RESISTANCE: f32 = 0.1;
+const MAX_VELOCITY: f32 = 50.0;
 
 #[derive(Clone)]
 struct Particle {
@@ -16,11 +18,11 @@ impl Particle {
     pub fn new(rng: &mut ThreadRng) -> Self {
         Self {
             position: [0.0, 0.7, 0.0],
-            color: [1.0, 0.7, 0.2, 1.0],
+            color: [1.0, 1.0, 1.0, 1.0],
             velocity: Self::init_velocity(
+                rng.gen_range(0.0, MAX_VELOCITY),
                 rng.gen_range(0.0, 2.0 * consts::PI),
                 rng.gen_range(0.0, 2.0 * consts::PI),
-                rng.gen_range(10.0, 20.0),
             ),
         }
     }
@@ -34,8 +36,9 @@ impl Particle {
     }
 
     fn update(&mut self) {
-        self.update_velocity();
         self.update_position();
+        self.update_velocity();
+        // self.update_color();
     }
 
     fn update_position(&mut self) {
@@ -45,10 +48,20 @@ impl Particle {
     }
 
     fn update_velocity(&mut self) {
-        let f = |v: f32| -> f32 { -v * (RESISTANCE * TIME_DELTA) };
+        let f = |v: f32| -> f32 { -v * (AIR_RESISTANCE * TIME_DELTA) };
         self.velocity[0] += f(self.velocity[0]);
         self.velocity[1] += f(self.velocity[1]) - (GRAVITY * TIME_DELTA);
         self.velocity[2] += f(self.velocity[2]);
+    }
+
+    fn update_color(&mut self) {
+        let velocity =
+            (self.velocity[0].powf(2.0) + self.velocity[1].powf(2.0) + self.velocity[2].powf(2.0))
+                .sqrt();
+
+        self.color[0] = (0.0 as f32).max(velocity) / MAX_VELOCITY;
+        self.color[1] = (0.0 as f32).max(velocity) / MAX_VELOCITY;
+        self.color[2] = (0.0 as f32).max(velocity) / MAX_VELOCITY;
     }
 }
 
@@ -80,11 +93,10 @@ impl Fire {
         let colors = [prev_colors, current_colors].concat();
 
         let vertex_count = vertices.len() / 3;
-        let links: Vec<u16> =
-            std::iter::zip(0..(vertex_count / 2), (vertex_count / 2)..vertex_count)
-                .into_iter()
-                .flat_map(|s| vec![s.0 as u16, s.1 as u16])
-                .collect::<Vec<u16>>();
+        let links: Vec<u16> = zip(0..(vertex_count / 2), (vertex_count / 2)..vertex_count)
+            .into_iter()
+            .flat_map(|s| vec![s.0 as u16, s.1 as u16])
+            .collect::<Vec<u16>>();
 
         (vertices, colors, links)
     }
