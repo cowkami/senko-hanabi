@@ -4,7 +4,7 @@ use black_body::BlackBody;
 use full_palette::{ORANGE, ORANGE_900, PURPLE};
 use plotters::prelude::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let output_path = "artifacts/output/show_spectrum.png";
+    let output_path = "artifacts/output/spectrum.png";
     let width = 1080;
     let height = 720;
 
