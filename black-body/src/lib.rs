@@ -42,11 +42,11 @@ impl BlackBody {
         Self { temperature }
     }
 
-    pub fn radiance(&self, wave_length: f64) -> f64 {
-        let l = wave_length;
+    pub fn radiance(&self, wavelength: f64) -> f64 {
+        let l = wavelength;
         let t = self.temperature;
         let first = 2.0 * H * C.powf(2.0) / l.powf(5.0);
-        let second = 1.0 / (E.powf(H * C / (l * K * t)) - 1.0);
+        let second = 1.0 / (E.powf((H * C) / (l * K * t)) - 1.0);
         return first * second;
     }
 
