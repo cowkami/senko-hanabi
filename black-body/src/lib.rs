@@ -82,20 +82,20 @@ impl BlackBody {
 
 // CIE 1931 color matching functions
 // ref: https://ja.wikipedia.org/wiki/CIE_1931_%E8%89%B2%E7%A9%BA%E9%96%93
-fn approx_color_x(wavelength: f64) -> f64 {
+pub fn approx_color_x(wavelength: f64) -> f64 {
     let l = wavelength;
     1.056 * segmented_gaussian(l, 599.8, 37.9, 31.0)
         + 0.362 * segmented_gaussian(l, 442.0, 16.0, 26.7)
         - 0.065 * segmented_gaussian(l, 501.1, 20.4, 26.2)
 }
 
-fn approx_color_y(wavelength: f64) -> f64 {
+pub fn approx_color_y(wavelength: f64) -> f64 {
     let l = wavelength;
     0.821 * segmented_gaussian(l, 568.8, 46.9, 40.5)
         + 0.286 * segmented_gaussian(l, 530.9, 16.3, 31.1)
 }
 
-fn approx_color_z(wavelength: f64) -> f64 {
+pub fn approx_color_z(wavelength: f64) -> f64 {
     let l = wavelength;
     1.217 * segmented_gaussian(l, 437.0, 11.8, 36.0)
         + 0.681 * segmented_gaussian(l, 459.0, 26.0, 13.8)

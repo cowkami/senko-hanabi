@@ -1,19 +1,18 @@
 use std::iter::zip;
 
-use black_body::BlackBody;
-use full_palette::{ORANGE, ORANGE_900, PURPLE};
+use black_body::*;
 use plotters::prelude::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let output_path = "artifacts/output/spectrum.png";
+    let output_path = "artifacts/output/cie1931_spectrum.png";
     let width = 1080;
     let height = 720;
 
-    let xlim = (100f32..10_000f32).log_scale();
-    let ylim = (10f32..100_000f32).log_scale();
+    let xlim = 300f32..800f32;
+    let ylim = 0f32..2f32;
 
-    let wavelengths = (0..=10_000).into_iter().map(|x| x as f64); // [nm]
-    let temps = [255.0, 3000.0, 4000.0, 5000.0, 6000.0, 7000.0];
-    let colors = [&BLACK, &RED, &ORANGE, &ORANGE_900, &BLUE, &PURPLE];
+    let wavelengths = (0..=1000).into_iter().map(|x| x as f64); // [nm]
+    let color_funcs = [approx_color_x, approx_color_y, approx_color_z];
+    let colors = [&RED, &GREEN, &BLUE];
 
     let root = BitMapBackend::new(output_path, (width, height)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -34,12 +33,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .axis_desc_style(("sans-serif", 15))
         .draw()?;
 
-    for (temperature, color) in zip(temps, colors) {
-        let body = BlackBody::new(temperature);
+    for (func, color) in zip(color_funcs, colors) {
         let data = wavelengths
             .clone()
             .into_iter()
-            .map(|x| (x as f32, (body.radiance(x * 1.0e-9) * 1.0e-9) as f32));
+            .map(|x| (x as f32, func(x) as f32));
 
         chart
             .draw_series(LineSeries::new(
@@ -50,7 +48,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     stroke_width: 1,
                 },
             ))?
-            .label(format!("{temperature} K"))
             .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], *color));
     }
 
