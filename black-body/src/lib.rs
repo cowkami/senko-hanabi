@@ -18,14 +18,14 @@
 //!
 //! let body = BlackBody::new(5800.0);
 //! println!("body temperature: {:?}", body.temperature);
-//! println!("body wave length: {:?}", body.calc_wave_length());
-//! println!("body frequency: {:?}", body.calc_frequency());
+//! println!("body radiance for wave length: {:?}", body.radiance(1.0e+3));
 //! println!("body color: {:?}", body.calc_color());
 //! ```
+use std::f64::consts::E;
 
 const C: f64 = 2.99792458e8; // [m/s] speed of light
-const h: f64 = 6.62607015e-34; // [J/Hz] Planck constant
-const k: f64 = 1.380649e-23; // [J/K] Boltzmann constant
+const H: f64 = 6.62607015e-34; // [J/Hz] Planck constant
+const K: f64 = 1.380649e-23; // [J/K] Boltzmann constant
 
 pub struct BlackBody {
     pub temperature: f64,
@@ -42,13 +42,12 @@ impl BlackBody {
         Self { temperature }
     }
 
-    pub fn calc_wave_length(&self) -> f64 {
-        let _ = C + h + k;
-        2.8977729e-3 / self.temperature
-    }
-
-    pub fn calc_frequency(&self) -> f64 {
-        2.99792458e8 / self.calc_wave_length()
+    pub fn radiance(&self, wave_length: f64) -> f64 {
+        let l = wave_length;
+        let t = self.temperature;
+        let first = 2.0 * H * C.powf(2.0) / l.powf(5.0);
+        let second = 1.0 / (E.powf(H * C / (l * K * t)) - 1.0);
+        return first * second;
     }
 
     pub fn calc_color(&self) -> [f64; 3] {
