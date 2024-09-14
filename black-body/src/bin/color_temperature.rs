@@ -1,7 +1,5 @@
-use std::iter::zip;
-
 use black_body::BlackBody;
-use plotters::{chart, prelude::*};
+use plotters::prelude::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output_path = "artifacts/output/color_temperature.png";
     let width = 1080;
@@ -38,20 +36,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pixel_heght = range.1.end - range.1.start;
     let pixel_width = range.0.end - range.0.start;
 
-    let temperature = 5800.0;
-    let body = BlackBody::new(temperature);
-    let color = body.calc_color();
-    let color = color
-        .iter()
-        .map(|&x| (x * 255.0) as u8)
-        .collect::<Vec<u8>>();
-
     // draw line for each temperature
-    let color = RGBAColor(color[0], color[1], color[2], 1.0);
     for xi in 0..=pixel_width {
+        let body = BlackBody::new(xi as f64);
+        let color = body.color_for_eye();
+        println!("raw color: {:?}", color);
+        // let norm: f64 = color[0..3].into_iter().sum();
+        // let color = color.iter().map(|&x| x / norm).collect::<Vec<f64>>();
+
+        println!("normalized color: {:?}", color);
+
+        let color = color
+            .iter()
+            .map(|&x| (x * 255.0) as u8)
+            .collect::<Vec<u8>>();
+        let color = RGBAColor(color[0], color[1], color[2], 1.0);
+
         for yi in 0..=pixel_heght {
             let y = yi as f32 / pixel_heght as f32;
             let x = xi as f32 / pixel_width as f32 * x_max;
+
             let _ = plotting_area.draw_pixel((x, y as f32), &color);
         }
     }
