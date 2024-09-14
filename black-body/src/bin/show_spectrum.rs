@@ -11,6 +11,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let xlim = (100f32..10_000f32).log_scale();
     let ylim = (10f32..100_000f32).log_scale();
 
+    let wavelengths = (0..=10_000).into_iter().map(|x| x as f64); // [nm]
+    let temps = [255.0, 3000.0, 4000.0, 5000.0, 6000.0, 7000.0];
+    let colors = [&BLACK, &RED, &ORANGE, &ORANGE_900, &BLUE, &PURPLE];
+
     let root = BitMapBackend::new(output_path, (width, height)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
@@ -30,9 +34,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .axis_desc_style(("sans-serif", 15))
         .draw()?;
 
-    let wavelengths = (0..=10_000).into_iter().map(|x| x as f64); // [nm]
-    let temps = [255.0, 3000.0, 4000.0, 5000.0, 6000.0, 7000.0];
-    let colors = [&BLACK, &RED, &ORANGE, &ORANGE_900, &BLUE, &PURPLE];
     for (temperature, color) in zip(temps, colors) {
         let body = BlackBody::new(temperature);
         let data = wavelengths
