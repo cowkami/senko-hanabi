@@ -23,9 +23,14 @@
 //! ```
 use std::f64::consts::E;
 
+// physical constants
 const C: f64 = 2.99792458e8; // [m/s] speed of light
 const H: f64 = 6.62607015e-34; // [J/Hz] Planck constant
 const K: f64 = 1.380649e-23; // [J/K] Boltzmann constant
+
+// visible light range
+const VISIBLE_LOWER: f64 = 360.0e-9; // [m]
+const VISIBLE_UPPER: f64 = 830.0e-9; // [m]
 
 pub struct BlackBody {
     pub temperature: f64,
@@ -51,6 +56,6 @@ impl BlackBody {
     }
 
     pub fn calc_color(&self) -> [f64; 3] {
-        [0.0, 0.0, 0.0]
+        [1.0, 0.0, 0.0]
     }
 }
