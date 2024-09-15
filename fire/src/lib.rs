@@ -2,8 +2,6 @@ mod app;
 mod fire;
 mod shader;
 
-extern crate nalgebra_glm as glm;
-
 use app::App;
 use fire::Fire;
 use std::{cell::RefCell, rc::Rc};

@@ -1,5 +1,5 @@
 [package]
-name = "black_body"
+name = "black-body"
 version = "0.1.0"
 edition = "2021"
 
