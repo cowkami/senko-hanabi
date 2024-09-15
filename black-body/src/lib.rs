@@ -29,6 +29,7 @@ const C: f64 = 2.99792458e8; // [m/s] speed of light
 const H: f64 = 6.62607015e-34; // [J/Hz] Planck constant
 const K: f64 = 1.380649e-23; // [J/K] Boltzmann constant
 
+#[derive(Debug, Clone)]
 pub struct BlackBody {
     pub temperature: f64,
 }

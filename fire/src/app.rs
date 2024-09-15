@@ -28,7 +28,7 @@ impl App {
             width,
             height,
             shader_program,
-            model: model,
+            model,
         })
     }
 

@@ -8,8 +8,8 @@ use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::*;
 
-const WIDTH: u32 = 768;
-const HEIGHT: u32 = 768;
+const WIDTH: u32 = 2560;
+const HEIGHT: u32 = 1600;
 
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
