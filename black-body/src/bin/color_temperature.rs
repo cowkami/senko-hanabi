@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(output_path, (width, height)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
-        .caption("Color temperature", ("sans-serif", 40))
+        .caption("Color temperature", ("sans-serif", 30))
         .margin(20)
         .x_label_area_size(50)
         .y_label_area_size(50)
@@ -43,11 +43,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let body = BlackBody::new(x as f64);
         let color = body.color_for_eye();
-        println!("raw color: {:?}", color);
 
         for yi in 0..=pixel_heght {
             let y = yi as f32 / pixel_heght as f32;
-
             let intensity = (y / y_max) as f64;
             let color = RGBAColor(
                 (255.0 * intensity * color[0]) as u8,
@@ -55,8 +53,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 (255.0 * intensity * color[2]) as u8,
                 1.0,
             );
-
-            println!("color rgb: {:?}", color);
 
             let _ = plotting_area.draw_pixel((x, y), &color);
         }

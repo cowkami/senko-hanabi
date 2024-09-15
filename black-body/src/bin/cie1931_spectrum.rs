@@ -1,7 +1,9 @@
 use std::iter::zip;
 
-use black_body::*;
 use plotters::prelude::*;
+
+use black_body::spectrum::ColorFunction;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let output_path = "artifacts/output/cie1931_spectrum.png";
     let width = 1080;
@@ -11,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ylim = 0f32..2f32;
 
     let wavelengths = (0..=1000).into_iter().map(|x| x as f64); // [nm]
-    let color_funcs = [approx_color_x, approx_color_y, approx_color_z];
+    let color_funcs = [ColorFunction::x, ColorFunction::y, ColorFunction::z];
     let colors = [&RED, &GREEN, &BLUE];
 
     let root = BitMapBackend::new(output_path, (width, height)).into_drawing_area();
