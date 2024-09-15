@@ -63,20 +63,24 @@ impl BlackBody {
             VISIBLE_UPPER,
             ((VISIBLE_UPPER - VISIBLE_LOWER) / WAVE_LENGTH_STEP) as usize,
         );
-        let x = wavelength
-            .clone()
-            .map(|l| self.radiance(l * 1.0e-9) * approx_color_x(l) * WAVE_LENGTH_STEP * 1.0e-9)
-            .sum::<f64>();
+
         let y = wavelength
             .clone()
             .map(|l| self.radiance(l * 1.0e-9) * approx_color_y(l) * WAVE_LENGTH_STEP * 1.0e-9)
+            .sum::<f64>();
+        let x = wavelength
+            .clone()
+            .map(|l| self.radiance(l * 1.0e-9) * approx_color_x(l) * WAVE_LENGTH_STEP * 1.0e-9)
             .sum::<f64>();
         let z = wavelength
             .clone()
             .map(|l| self.radiance(l * 1.0e-9) * approx_color_z(l) * WAVE_LENGTH_STEP * 1.0e-9)
             .sum::<f64>();
 
-        xyz_to_rgb([x, y, z])
+        let (r, g, b) = xyz_to_rgb(x, y, z);
+        let norm = (r + g + b) / 3.0;
+
+        [r / norm, g / norm, b / norm]
     }
 }
 
@@ -109,14 +113,14 @@ fn segmented_gaussian(x: f64, mu: f64, sigma1: f64, sigma2: f64) -> f64 {
     }
 }
 
-fn xyz_to_rgb(xyz: [f64; 3]) -> [f64; 3] {
+fn xyz_to_rgb(x: f64, y: f64, z: f64) -> (f64, f64, f64) {
     let m = [
         [0.41847, -0.15866, -0.082835],
         [-0.091169, 0.25243, 0.015708],
         [0.00092090, -0.0025498, 0.17860],
     ];
-    let r = m[0][0] * xyz[0] + m[0][1] * xyz[1] + m[0][2] * xyz[2];
-    let g = m[1][0] * xyz[0] + m[1][1] * xyz[1] + m[1][2] * xyz[2];
-    let b = m[2][0] * xyz[0] + m[2][1] * xyz[1] + m[2][2] * xyz[2];
-    [r, g, b]
+    let r = m[0][0] * x + m[0][1] * y + m[0][2] * z;
+    let g = m[1][0] * x + m[1][1] * y + m[1][2] * z;
+    let b = m[2][0] * x + m[2][1] * y + m[2][2] * z;
+    (r, g, b)
 }
