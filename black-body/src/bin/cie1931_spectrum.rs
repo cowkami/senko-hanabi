@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = BitMapBackend::new(output_path, (width, height)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
-        .caption("Black body radiance spectrum", ("sans-serif", 40))
+        .caption("CIE1931 color functions spectrum", ("sans-serif", 40))
         .margin(20)
         .x_label_area_size(70)
         .y_label_area_size(70)

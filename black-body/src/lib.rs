@@ -22,9 +22,6 @@
 //! println!("body color: {:?}", body.color_for_eye());
 //! ```
 pub mod spectrum;
-
-use std::f64::consts::E;
-
 use spectrum::Spectrum;
 
 // physical constants
@@ -53,7 +50,7 @@ impl BlackBody {
         let l = wavelength;
         let t = self.temperature;
         let first = 2.0 * H * C.powf(2.0) / l.powf(5.0);
-        let second = 1.0 / (E.powf((H * C) / (l * K * t)) - 1.0);
+        let second = 1.0 / (((H * C) / (l * K * t)).exp() - 1.0);
         return first * second;
     }
 
