@@ -19,7 +19,7 @@
 //! let body = BlackBody::new(5800.0);
 //! println!("body temperature: {:?}", body.temperature);
 //! println!("body radiance for wave length: {:?}", body.radiance(1.0e+3));
-//! println!("body color: {:?}", body.calc_color());
+//! println!("body color: {:?}", body.color_for_eye());
 //! ```
 pub mod spectrum;
 
